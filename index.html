@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App | Lux Prajapati </title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- favicon -->
+  <link rel="shortcut icon" href="./Images/favicon.png" type="image/x-icon">
+</head>
+<body>  
+  <div class="wrapper">
+
+    <h1>Weather App <i>LP</i></h1>
+    <div class="tab-container">
+      <p class="tab" data-userWeather>Your Weather</p>
+      <p class="tab" data-searchWeather>Search Weather</p> 
+    </div>  
+
+    <div class="weather-container">
+      <!-- Grant Location Container -->
+      <div class="grant-location-container">
+        <img src="https://codehelp-weather-app.netlify.app/assets/location.png" alt="" width="80" height="80" loading="lazy">     
+        <p>Grant Location Access</p>
+        <p>Allow Access To get weathre info</p>
+        <button class="btn" data-grantAccess>Grant Access</button>
+      </div>
+
+      <!-- Search Location Container -->
+      <form action="#" class="form-container" data-searchForm>
+        <input type="text" placeholder="Search for City" data-searchInput>
+        <button class="btn"> 
+          <img src="https://codehelp-weather-app.netlify.app/assets/search.png" alt="" width="20" height="20" loading="lazy">
+        </button>
+      </form>
+
+      <!-- Loading screen container -->
+      <div class="loading-container">
+        <img src="https://codehelp-weather-app.netlify.app/assets/loading.gif" width="150" height="150" alt="">
+        <p>Loading...</p>
+      </div>
+
+      <!-- Show weather Info container -->
+      <div class="user-info-container">
+
+        <!-- city name and flag -->
+        <div class="name">
+          <p data-cityName></p>
+          <img src="" data-countryIcon alt="Country Flag">
+        </div>
+        <!-- Weather description -->
+        <p data-weatherDesc></p>
+        <!-- weather icon -->
+        <img data-weatherIcon>
+        <!-- tempreature -->
+        <p  ></p>
+      
+        <!--  3 card parameters -->
+        <div class="parameter-container">
+          <!-- Card 1 -->
+          <div class="parameter">
+            <img src="https://codehelp-weather-app.netlify.app/assets/wind.png" alt="">
+            <p>WindSpeed</p>
+            <p data-windspeed></p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="parameter">
+            <img src="https://codehelp-weather-app.netlify.app/assets/humidity.png" alt="">
+            <p>Humidity</p>
+            <p data-humidity></p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="parameter">
+            <img src="https://codehelp-weather-app.netlify.app/assets/cloud.png" alt="">
+            <p>Clouds</p>
+            <p data-cloud></p>
+          </div>
+
+        </div>
+      </div>  
+
+
+    </div>
+
+  </div>
+  
+  <script  src="index.js"></script>
+</body>
+</html>
