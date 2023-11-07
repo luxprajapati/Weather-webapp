@@ -1,37 +1,32 @@
+// - - - - - - - - - - - -Tab Handling- - - - - - - - - - - -
 const userTab = document.querySelector("[data-userWeather]");
 const searchTab = document.querySelector("[data-searchWeather]");
-
 const userContainer = document.querySelector(".weather-container");
-
-const grantAccesContainer = document.querySelector(".grant-location-container");
-const searchForm = document.querySelector("[data-searchForm]");
-const loadingScreen = document.querySelector(".loading-container");
-
 const userInfoContainer = document.querySelector(".user-info-container");
+const grantAccessContainer = document.querySelector(
+  ".grant-location-container"
+);
+const searchForm = document.querySelector("[data-searchForm ]");
+const searchInp = document.querySelector("[data-searchInp]"); 
+const apiErrorContainer = document.querySelector(".api-error-container");   
 
-// My API key taken from `openweather`
-const ApiKey = "556e009880be18336813ea2ae64a2b92";
-
-// Initially we required the curr Tab bcz firstly we should have information
-// where you are after that you can switch the tab.
 let currentTab = userTab;
+// My API KEY taken from `openweather`
+const API_KEY = "556e009880be18336813ea2ae64a2b92";
+
+// Setting default tab
 currentTab.classList.add("current-tab");
-// Here One Task is still Pending. Find What ?
 
-// oldTab  = current Tab
-// newTab  = clickedTab
-
-// Function for switching the Tab
 function switchTab(clickedTab) {
-  if (clickedTab != currentTab) {
+  apiErrorContainer.classList.remove("active"); 
+  if (clickedTab !== currentTab) {
     currentTab.classList.remove("current-tab");
     currentTab = clickedTab;
     currentTab.classList.add("current-tab");
-
     // If the active class is not in `searchForm` then we will add it
     if (!searchForm.classList.contains("active")) {
-      userInfoContainer.classList.remove("active"); // If the user info is showing then remove it
-      grantAccesContainer.classList.remove("active"); // Similarly if the grantAccess is showing then remove it
+      userInfoContainer.classList.remove("active"); // if the user info is showing then remove it
+      grantAccessContainer.classList.remove("active");// Similarly,if the grantAccess is showing then remove it
       searchForm.classList.add("active");
     } else {
       // mai phele search walle tab per tha, abb your weather tab visible krna hai
@@ -40,58 +35,111 @@ function switchTab(clickedTab) {
       // Ab main your weather tab me agya hu, toh weather bho display karna padega, so lets check local storage first for coordinate, if we saved them there.
       getFromSessionStorage();
     }
+    // console.log("Current Tab", currentTab);
   }
 }
 
 userTab.addEventListener("click", () => {
-  // Here in switchTab() function you will pass what you have clicked as a parameter
   switchTab(userTab);
 });
-
 searchTab.addEventListener("click", () => {
   switchTab(searchTab);
 });
 
-// Function for getting data for current session storage
+// - - - - - - - - - - - -User Weather Handling- - - - - - - - - - - -
+const grantAccessBtn = document.querySelector("[data-grantAccess]");
+const messageText = document.querySelector("[data-messageText]");
+const loadingScreen = document.querySelector(".loading-container");
+const apiErrorImg = document.querySelector("[data-notFoundImg]");
+const apiErrorMessage = document.querySelector("[data-apiErrorText]");
+const apiErrorBtn = document.querySelector("[data-apiErrorBtn]");
+
+// Check if coordinates are already present in Session Storage
 function getFromSessionStorage() {
-  const localCoordinates = sessionStorage.getItem("user-coodinates");
+  const localCoordinates = sessionStorage.getItem("user-coordinates");
+  //  Local coordinates are not present then
   if (!localCoordinates) {
-    // Loacal coordinate are not present then,
-    grantAccesContainer.classList.add("active");
-  } else {
-    // if the local coordinate are present
+    grantAccessContainer.classList.add("active");
+  } else { // if the local coordinates are present
     const coordinates = JSON.parse(localCoordinates);
     fetchUserWeatherInfo(coordinates);
   }
 }
 
-// Function to fetch the User weather info
-async function fetchUserWeatherInfo(coordinates) {
-  const { lat, lon } = coordinates;
-  // Make grant access container invisible
-  grantAccesContainer.classList.remove("active");
-  // Make loading visible
-  loadingScreen.classList.add("active");
-
-  // Calling API
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${ApiKey}`
-    );
-    const data = await response.json();
-
-    loadingScreen.classList.remove("active");
-    userInfoContainer.classList.add("active");
-    renderWeatherInfo(data);
-  } catch (e) {
-    loadingScreen.classList.remove("active");
-    console.log("You are facing these error", e);
+// Get Coordinates using geoLocation
+// https://www.w3schools.com/html/html5_geolocation.asp
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition, showError);
+  } else {
+    grantAccessBtn.style.display = "none";
+    messageText.innerText = "Geolocation is not supported by this browser.";
   }
 }
 
-// Function to render the weather update
+// Store User Coordinates
+function showPosition(position) {
+  const userCoordinates = {
+    lat: position.coords.latitude,
+    lon: position.coords.longitude,
+  };
+  sessionStorage.setItem("user-coordinates", JSON.stringify(userCoordinates));
+  fetchUserWeatherInfo(userCoordinates);
+}
+
+// Handle any errors
+function showError(error) {
+  switch (error.code) {
+    case error.PERMISSION_DENIED:
+      messageText.innerText = "You denied the request for Geolocation.";
+      break;
+    case error.POSITION_UNAVAILABLE:
+      messageText.innerText = "Location information is unavailable.";
+      break;
+    case error.TIMEOUT:
+      messageText.innerText = "The request to get user location timed out.";
+      break;
+    case error.UNKNOWN_ERROR:
+      messageText.innerText = "An unknown error occurred.";
+      break;
+  }
+}
+
+getFromSessionStorage();
+grantAccessBtn.addEventListener("click", getLocation);
+
+// fetch data from API - user weather info
+async function fetchUserWeatherInfo(coordinates) {
+  const { lat, lon } = coordinates;
+  
+  grantAccessContainer.classList.remove("active");
+  loadingScreen.classList.add("active");
+
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+    );
+    const data = await res.json();
+    // console.log("User - Api Fetch Data", data);
+    if (!data.sys) {
+      throw data;
+    }
+    loadingScreen.classList.remove("active");
+    userInfoContainer.classList.add("active");
+    renderWeatherInfo(data);
+  } catch (error) {
+    // console.log("User - Api Fetch Error", error.message);
+    loadingScreen.classList.remove("active");
+    apiErrorContainer.classList.add("active");
+    apiErrorImg.style.display = "none";
+    apiErrorMessage.innerText = `Error: ${error?.message}`;
+    apiErrorBtn.addEventListener("click", fetchUserWeatherInfo);
+  }
+}
+
+// Render weather Info In UI
 function renderWeatherInfo(weatherInfo) {
-  // Firstly, we have to fetch all the elements which we required to show
+  // console.log("Weather Info", weatherInfo);
   const cityName = document.querySelector("[data-cityName]");
   const countryIcon = document.querySelector("[data-countryIcon]");
   const desc = document.querySelector("[data-weatherDesc]");
@@ -99,15 +147,51 @@ function renderWeatherInfo(weatherInfo) {
   const temp = document.querySelector("[data-temp]");
   const windspeed = document.querySelector("[data-windspeed]");
   const humidity = document.querySelector("[data-humidity]");
-  const cloudiness = document.querySelector("[data-cloud]");
+  const cloudiness = document.querySelector("[data-cloudiness]");
 
-  // Fetch the values from the weather info and push to the above elements.
-  cityName.innerHTML = weatherInfo?.name;
-  countryIcon.src = `https://flagcdn.com/144*108/${weatherInfo?.sys?.country.toLowerCase()}.png`;
-  desc.innerHTML = weatherInfo.weather?.[0]?.description;
-  weatherIcon.src = `https://openweathermap.org/img/w/${weatherInfo?.weather?.[0]?.icon}.png`;
-  temp.innerHTML = weatherInfo?.main?.temp;
-  windspeed.innerHTML = weatherInfo?.wind?.speed;
-  humidity.innerHTML = weatherInfo?.main?.humidity;
-  cloudiness.innerHTML = weatherInfo?.clouds?.all;
+  cityName.innerText = weatherInfo?.name;
+  countryIcon.src = `https://flagcdn.com/144x108/${weatherInfo?.sys?.country.toLowerCase()}.png`;
+  desc.innerText = weatherInfo?.weather?.[0]?.main;
+  weatherIcon.src = `http://openweathermap.org/img/w/${weatherInfo?.weather?.[0]?.icon}.png`;
+  temp.innerText = `${weatherInfo?.main?.temp.toFixed(2)} °C`;
+  windspeed.innerText = `${weatherInfo?.wind?.speed.toFixed(2)}m/s`;
+  humidity.innerText = `${weatherInfo?.main?.humidity}%`;
+  cloudiness.innerText = `${weatherInfo?.clouds?.all}%`;
+}
+
+// - - - - - - - - - - - -Search Weather Handling- - - - - - - - - - - -
+
+searchForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (searchInp.value === "") return;
+  // console.log(searchInp.value);
+  fetchSearchWeatherInfo(searchInp.value);
+  searchInp.value = "";
+});
+
+// fetch data from API - user weather info
+async function fetchSearchWeatherInfo(city) {
+  loadingScreen.classList.add("active");
+  userInfoContainer.classList.remove("active");
+  apiErrorContainer.classList.remove("active");
+
+  try {
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+    );
+    const data = await res.json();
+    // console.log("Search - Api Fetch Data", data);
+    if (!data.sys) {
+      throw data;
+    }
+    loadingScreen.classList.remove("active");
+    userInfoContainer.classList.add("active");
+    renderWeatherInfo(data);
+  } catch (error) {
+    // console.log("Search - Api Fetch Error", error.message);
+    loadingScreen.classList.remove("active");
+    apiErrorContainer.classList.add("active");
+    apiErrorMessage.innerText = `${error?.message}`;
+    apiErrorBtn.style.display = "none";
+  }
 }
