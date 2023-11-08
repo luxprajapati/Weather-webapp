@@ -29,6 +29,7 @@
       <p data-messageText>Allow Access To Get Weather Information</p>
       <button class="btn" data-grantAccess>Grant Access</button>
     </div>
+
     <!-- search country form -->
     <form class="form-container" data-searchForm>
       <input placeholder="Search for city ..." data-searchInp />
@@ -36,6 +37,7 @@
         <img src="https://codehelp-weather-app.netlify.app/assets/search.png" width="20" height="20" loading="lazy" />
       </button>
     </form>
+
     <!-- loading screen container -->
     <div class="sub-container loading-container">
       <img src="https://codehelp-weather-app.netlify.app/assets/loading.gif" width="150" height="150" />
@@ -57,7 +59,8 @@
           <p class="parameter-value" data-windspeed></p>
         </div>
         <div class="parameter">
-          <img src="https://codehelp-weather-app.netlify.app/assets/humidity.png">Humidity</p>
+          <img src="https://codehelp-weather-app.netlify.app/assets/humidity.png">
+          <p>Humidity</p>
           <p class="parameter-value" data-humidity></p>
         </div>
         <div class="parameter">
@@ -69,7 +72,7 @@
     </div>
     <!-- handle api fetch error -->
     <div class="sub-container api-error-container">
-      <img src="https://codehelp-weather-app.netlify.app/assets/not-found.png" data-notFoundImg />
+      <img src="https://codehelp-weather-app.netlify.app/assets/not-found.png" width="100px" />
       <p data-apiErrorText></p>
       <button class="btn" data-apiErrorBtn>Retry</button>
     </div>
